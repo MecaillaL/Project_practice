@@ -1,0 +1,57 @@
+### importing file from google drive to google colab
+
+from google.colab import drive
+drive.mount('/content/drive')
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import datetime
+
+roster= pd.read_csv(r'/content/drive/MyDrive/roster/NCR_Roster_07012011.csv')
+
+### Exploration through the data
+
+roster.columns
+roster.describe()
+roster.dtypes     #if the columns contain NA, it is fine to be in type float64
+
+category = roster.dtypes[roster.dtypes == "object"].index
+roster[category].describe()
+
+roster['hh_id'].unique() #to see unique values
+roster['poor'].value_counts() #to see the count per value
+roster[np.logical_and(roster['gender'] == 1 , roster['pregnant']== 1)]   #subsetting to see desired rows
+
+age= [111, 103,  94, 98, 120, 106, 102,  97, 101, 112, 109,  99,  96, 105, 100, 107, 108]
+roster[roster['current_age'].isin(age)]    #subsetting columns where it is in a certain values
+
+
+
+
+#  making histogram to check for distribution
+roster.hist('current_age', figsize=(20,10), bins= 20)
+roster.hist('pregnant', figsize=(20,10), bins= 10)
+
+roster.isnull().sum()  #to see how many NA
+roster.dropna(axis='index', how='all', inplace = True)    #to drop NA row that have all NA columns
+rows_with_na = roster[roster.isna().any(axis=1)]    #subsetting all rows that still have NA
+
+
+###  Changing certain values in specific columns
+roster.loc[roster.single_parent == 1, 'single_parent'] = 0
+roster.loc[roster.school_type == 34, 'school_type'] = 3
+roster.loc[roster.current_age <10, 'occupation'] = 10
+
+roster['pcinc'].fillna(method= 'ffill', inplace= True)      #to fill in NA values by copying the values before it.
+
+
+
+### To subset columns we want to save and remove.
+roster1= roster[['hh_id', 'rel_hh', 'birthday', 'marital_stat', 'single_parent','gender', 'pregnant', 
+                'health_centr', 'attend_school', 'school_type','ed_attain', 'occupation', 'current_age']]
+                
+                
+      
+### To save the file
+roster1.to_csv('roster_1.csv')
