@@ -1,0 +1,12 @@
+## First. Control PAnel > Security > Administrative tools > odbs connector(64bit) > add new conncetion
+
+library(DBI)
+library(RODBC)
+library(odbc)
+library(dplyr)
+
+con <- dbConnect(odbc::odbc(), "SQLSERVER_DSN", timeout = 10)
+con1 <- dbConnect(odbc::odbc(), "SQLSERVER_DSN_1", timeout = 10)
+
+roster1 <- dbGetQuery(conn = con1, statement= "SELECT * FROM NCR_Roster_07012011")
+head(roster1)
