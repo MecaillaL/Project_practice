@@ -16,6 +16,10 @@ roster.columns
 roster.describe()
 roster.dtypes     #if the columns contain NA, it is fine to be in type float64
 
+roster['birthday'] = pd.to_datetime(roster['birthday'])
+roster['birthday'] = roster['birthday'].dt.strftime('%m-%d-%Y') #to change the format consistently
+
+
 category = roster.dtypes[roster.dtypes == "object"].index
 roster[category].describe()
 
