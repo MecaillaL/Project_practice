@@ -1,0 +1,97 @@
+library(readxl)
+SAMPLE_DATA <- read_excel("C:/Users/LOMOLJO/Downloads/SAMPLE-DATA.xlsx")
+View(SAMPLE_DATA)
+
+attach(SAMPLE_DATA)
+
+
+##################################
+## 1. Component plus residual plot####
+##################################
+
+library(carData)
+library(car)
+library(lmtest)
+
+model_01 <- lm(Licensure~Major_grade + `Year of Graduation`, SAMPLE_DATA)
+summary(model_01)
+crPlots(model_01)
+
+
+##################################
+##2. RAMSEY RESET TEST############
+##################################
+
+resettest(model_01)
+
+
+#############################
+###3. Breusch Pagan Test#####
+#############################
+lmtest::bptest(model_01)
+
+
+
+
+
+##########################
+##3A. White test##########
+##########################
+
+library(vars)
+library(het.test)
+
+data_01 <- data.frame(Licensure<-SAMPLE_DATA$Licensure,
+                      Major_grade<-SAMPLE_DATA$Major_grade,
+                     Year_of_grad <-SAMPLE_DATA$`Year of Graduation`)
+var_01<- VAR(data_01, p=1)
+whites.htest(var_01)
+
+
+
+#############################
+##4. Box-Cox Transformation##
+#############################
+
+pkgbuild::check_build_tools()
+library(tibble)
+library(caret)
+library(ggplot2)
+library(lattice)
+
+Box_Cox_model <-caret::BoxCoxTrans(SAMPLE_DATA$Licensure)
+SAMPLE_DATA <- cbind(SAMPLE_DATA, BCLicensure=predict(Box_Cox_model, SAMPLE_DATA$Licensure))
+model_02 <- lm(BCLicensure~Major_grade+`Year of Graduation`, SAMPLE_DATA)
+summary(model_02)
+
+resettest(model_02)
+lmtest::bptest(model_02)
+
+
+################################
+### 5. Log Transformation #####
+###############################
+
+Log_majorgrade <- log(Major_grade)
+
+SAMPLE_DATA$Log_Major <- Log_majorgrade
+
+model_3 <- lm(Licensure~Log_majorgrade +`Year of Graduation`, SAMPLE_DATA)
+crPlots(model_3)
+
+
+resettest(model_3)
+lmtest::bptest(model_3)
+
+
+#######################################
+#####6. Weighted Least Transformation###
+######################################
+
+w <-1/lm(abs(model_01$residuals)~model_01$fitted.values)$fitted.values^2
+wls_model <-lm(Licensure~Major_grade+`Year of Graduation`, SAMPLE_DATA, weights=w)
+summary(wls_model)
+
+resettest(wls_model)
+lmtest::bptest(wls_model)
+
