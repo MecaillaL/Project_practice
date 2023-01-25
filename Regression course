@@ -26,17 +26,19 @@ resettest(model_01)
 
 
 #############################
-###3. Breusch Pagan Test#####
+###3. Breusch Pagan Test##### -> same as white test
 #############################
-lmtest::bptest(model_01)
+lmtest::bptest(model_01)      ##this function if for linear regression model
 
 
+Ho: homos is present
+Ha: Hetero is present
+-> means if hetero is present then the errors shown/results in the regression model table is unreliable.
 
 
-
-##########################
-##3A. White test##########
-##########################
+##########################   Ho: homos is present, Ha: Hetero is present, means if hetero is present then the errors shown in the regression model table is unreliable.
+##3A. White test##########  ->not rely on normality, 
+##########################  -> for heteroskedasticity test, -> based on residuals of model, 
 
 library(vars)
 library(het.test)
@@ -44,13 +46,17 @@ library(het.test)
 data_01 <- data.frame(Licensure<-SAMPLE_DATA$Licensure,
                       Major_grade<-SAMPLE_DATA$Major_grade,
                      Year_of_grad <-SAMPLE_DATA$`Year of Graduation`)
-var_01<- VAR(data_01, p=1)
-whites.htest(var_01)
+var_01<- VAR(data_01, p=1)      ##this is a vector autoregression model
+whites.htest(var_01)             ## this function implements White's test for heteroskedasticity for vector autoregressions (VAR).
 
 
+
+
+
+#######SOME SOLUTIONS FOR THIS ISSUE: ---------------------------------------------------------- 
 
 #############################
-##4. Box-Cox Transformation##
+##1. Box-Cox Transformation##
 #############################
 
 pkgbuild::check_build_tools()
@@ -69,7 +75,7 @@ lmtest::bptest(model_02)
 
 
 ################################
-### 5. Log Transformation #####
+### 2. Log Transformation #####
 ###############################
 
 Log_majorgrade <- log(Major_grade)
@@ -85,7 +91,7 @@ lmtest::bptest(model_3)
 
 
 #######################################
-#####6. Weighted Least Transformation###
+#####3. Weighted Least Transformation###
 ######################################
 
 w <-1/lm(abs(model_01$residuals)~model_01$fitted.values)$fitted.values^2
